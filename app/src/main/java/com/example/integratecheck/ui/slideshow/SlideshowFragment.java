@@ -31,8 +31,8 @@ public class SlideshowFragment extends Fragment {
     private float consumedFuel = 0.0f;
     private float travelledDistance = 0.0f;
     private float avg_trip = 0.0f;
-    EditText start,end, avail, consumed;
-    Button avg;
+    EditText odometerstart,odometerend, availableFuel1, availableFuel2;
+    Button avg,reset;
     TextView ans;
     DataBaseHelper dataBaseHelper;
 
@@ -58,11 +58,15 @@ public class SlideshowFragment extends Fragment {
             }
         });
 
-        start = root.findViewById(R.id.etStart);
-        end = root.findViewById(R.id.etEnd);
-        avail = root.findViewById(R.id.etAvail);
-        consumed = root.findViewById(R.id.etcon);
+        odometerstart = root.findViewById(R.id.etStart);
+        odometerend = root.findViewById(R.id.etEnd);
+        availableFuel1 = root.findViewById(R.id.etAvail);
+        availableFuel2 = root.findViewById(R.id.etcon);
         avg = root.findViewById(R.id.btnAvg);
+
+        ans = root.findViewById(R.id.ans);  //<<<<<<<<<--------------------------------------HE KON SET KARNAR!!!
+
+        reset = root.findViewById(R.id.reset);
         return root;
     }
 
@@ -73,51 +77,82 @@ public class SlideshowFragment extends Fragment {
         avg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(),"Entered Onclick 1",Toast.LENGTH_LONG).show();
 
-                final float start1 = Float.valueOf(start.getText().toString());
-                final float end1, consumed1;
-                final float avail1 = Float.valueOf(avail.getText().toString());
+                //CONVERTING INTO FLOAT
+                final float temp_odometerend, temp_availableFuel2;
+
+                final float temp_odometerstart = Float.valueOf(odometerstart.getText().toString());
+                final float temp_availableFuel1 = Float.valueOf(availableFuel1.getText().toString());
+
                 float temp_end,temp_con;
-                Toast.makeText(getActivity(),"Entered Onclick",Toast.LENGTH_LONG).show();
 
 
-                if ((Float.valueOf(end.getText().toString()) == 0) || (Float.valueOf(end.getText().toString()) == null))
+                if ((Float.valueOf(odometerend.getText().toString()) == 0) || (Float.valueOf(odometerend.getText().toString()) == null))
                     temp_end= 0;
                 else
-                    temp_end= Float.valueOf(end.getText().toString());
+                    temp_end= Float.valueOf(odometerend.getText().toString());
+                temp_odometerend=temp_end;
 
-                end1=temp_end;
 
-                if ((Float.valueOf(consumed.getText().toString()) == 0) || (Float.valueOf(consumed.getText().toString()) == null))
+                if ((Float.valueOf(availableFuel2.getText().toString()) == 0) || (Float.valueOf(availableFuel2.getText().toString()) == null))
                     temp_con= 0;
                 else
-                    temp_con= Float.valueOf(consumed.getText().toString());
-                consumed1=temp_con;
+                    temp_con= Float.valueOf(availableFuel2.getText().toString());
+                temp_availableFuel2=temp_con;
 
-                consumedFuel=avail1-consumed1;
-                travelledDistance= end1-start1;
+                //CALCULATION
+                consumedFuel=temp_availableFuel1-temp_availableFuel2;
+                travelledDistance= temp_odometerend-temp_odometerstart;
                 avg_trip= travelledDistance/consumedFuel;
-                boolean result = dataBaseHelper.addData(String.valueOf(consumedFuel),String.valueOf(travelledDistance),String.valueOf(avg_trip));
+
+                //INSERTING INTO DATABASE
+                boolean result = dataBaseHelper.addData(String.valueOf(consumedFuel),
+                                                String.valueOf(travelledDistance),
+                                                String.valueOf(avg_trip));
 
                 if (result == true)
                     Toast.makeText(getActivity(),"Data Inserted Successfully",Toast.LENGTH_LONG).show();
                 else
                     Toast.makeText(getActivity(),"Data NotInserted",Toast.LENGTH_LONG).show();
+
+                //RETRIVING FROM DATABASE
                 Cursor cursor = dataBaseHelper.getData();
                 if(cursor.getCount()==0) {
                     showmsg("Error..!! ","DB Empty");
                     return;
                 }
 
+                StringBuffer buffer=new StringBuffer();
                 while (cursor.moveToNext())
                 {
+                    buffer.append("consumedFuel "+cursor.getString(0)+"\n");
+                    buffer.append("travelledDistance "+cursor.getString(1)+"\n");
+                    buffer.append("avg_trip "+cursor.getString(2)+"\n");
                     ans.setText(String.valueOf(cursor.getString(2)));
                 }
 
+                showmsg("Data",buffer.toString());
+
+            }
+        });
+
+        //RESETING TRIP DATA
+        reset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Cursor cursor=dataBaseHelper.reset("trip");
+
+                if (cursor.getCount()==0){
+                    Toast.makeText(getActivity(),"DATA RESET",Toast.LENGTH_LONG).show();
+                }
+                else {
+                    Toast.makeText(getActivity(),"NOT DATA INSERTED",Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
+
+    //ALERT BOX FOR DISPLAYING DATA
     public void showmsg(String title,String msg){
         AlertDialog.Builder builder=new AlertDialog.Builder(getActivity());
         builder.setCancelable(true);

@@ -58,4 +58,10 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return res;
     }
 
+    public Cursor reset(String Table_Name){
+        SQLiteDatabase db=this.getWritableDatabase();
+        Cursor res=db.rawQuery("DELETE FROM "+Table_Name, null);
+        return res;
+    }
+
 }
