@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">IntegrateCheck</string>
+    <string name="app_name">Registration</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>
@@ -13,4 +13,12 @@
     <string name="menu_tools">Tools</string>
     <string name="menu_share">Share</string>
     <string name="menu_send">Send</string>
+
+    <string name="bike_prompt">Choose a Bike</string>
+
+    <string-array name="bike_arrays">
+        <item>Activa 5G</item>
+        <item>Access 125</item>
+        <item>Aviator</item>
+    </string-array>
 </resources>
